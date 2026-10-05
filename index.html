@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <!-- Подключение шрифтов и графических флагов -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.1.0/css/flag-icons.min.css" />
+  
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338ca;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-dark: #1f2937;
+      --text-gray: #6b7280;
+      --error: #ef4444;
+      --success: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .app-container {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 450px;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      padding: 30px;
+      text-align: center;
+      position: relative;
+    }
+
+    /* Языки (Векторные Флаги) */
+    .lang-selector {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    .lang-flag {
+      font-size: 32px; /* Размер флагов */
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+      opacity: 0.4;
+      border-radius: 4px;
+      overflow: hidden;
+      line-height: 1;
+    }
+    .lang-flag:hover { transform: scale(1.15); opacity: 0.8; }
+    .lang-flag.active { 
+      opacity: 1; 
+      transform: scale(1.2); 
+      filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3)); 
+    }
+
+    /* Выбор режима */
+    .mode-selector {
+      display: flex;
+      background: #e5e7eb;
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 30px;
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: none;
+      font-family: inherit;
+      font-weight: 700;
+      color: var(--text-gray);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: 0.3s;
+      font-size: 14px;
+    }
+    .mode-btn.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Игровое поле */
+    .game-area { margin-bottom: 30px; }
+    
+    .target-number {
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--text-dark);
+      margin-bottom: 15px;
+      min-height: 70px;
+    }
+
+    .input-display {
+      background: #f3f4f6;
+      border: 2px dashed #cbd5e1;
+      border-radius: 16px;
+      min-height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 2px;
+      transition: 0.3s;
+    }
+    .input-display.success {
+      background: #ecfdf5;
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    /* Клавиатура */
+    .keyboard {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .keyboard.arabic { grid-template-columns: repeat(5, 1fr); }
+    .keyboard.roman { grid-template-columns: repeat(4, 1fr); }
+
+    .key {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 15px 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-dark);
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 4px 0 #e5e7eb;
+    }
+    .key:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #e5e7eb;
+    }
+    .key:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* Кнопки управления */
+    .controls { display: flex; gap: 15px; }
+    .btn {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+    }
+    .btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+    .btn-clear { background: var(--error); box-shadow: 0 4px 0 #b91c1c; }
+    .btn-next { background: var(--success); box-shadow: 0 4px 0 #047857; display: none; }
+    
+    .status-msg {
+      font-weight: 700;
+      font-size: 18px;
+      margin-top: 15px;
+      min-height: 25px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Выбор языка (теперь использует графические флаги) -->
+  <div class="lang-selector">
+    <div class="lang-flag" onclick="setLang('ko')" id="flag-ko" title="한국어">
+      <span class="fi fi-kr"></span>
+    </div>
+    <div class="lang-flag active" onclick="setLang('ru')" id="flag-ru" title="Русский">
+      <span class="fi fi-ru"></span>
+    </div>
+    <div class="lang-flag" onclick="setLang('en')" id="flag-en" title="English">
+      <span class="fi fi-gb"></span>
+    </div>
+    <div class="lang-flag" onclick="setLang('uz')" id="flag-uz" title="O'zbek">
+      <span class="fi fi-uz"></span>
+    </div>
+  </div>
+
+  <!-- Выбор режима -->
+  <div class="mode-selector">
+    <button class="mode-btn active" id="btn-mode-r2a" onclick="setMode('R2A')">Римские ➔ Арабские</button>
+    <button class="mode-btn" id="btn-mode-a2r" onclick="setMode('A2R')">Арабские ➔ Римские</button>
+  </div>
+
+  <!-- Дисплей игры -->
+  <div class="game-area">
+    <div class="target-number" id="target-display"></div>
+    <div class="input-display" id="input-display"></div>
+    <div class="status-msg" id="status-msg"></div>
+  </div>
+
+  <!-- Клавиатура генерируется через JS -->
+  <div id="keyboard-container"></div>
+
+  <!-- Управление -->
+  <div class="controls">
+    <button class="btn btn-clear" id="btn-clear" onclick="clearInput()">Очистить</button>
+    <button class="btn btn-next" id="btn-next" onclick="generateNewPuzzle()">Следующее</button>
+  </div>
+</div>
+
+<script>
+  // --- Словари локализации ---
+  const i18n = {
+    ru: { m_r2a: "Римские ➔ Арабские", m_a2r: "Арабские ➔ Римские", clear: "Очистить", next: "Дальше", correct: "Правильно! 🎉" },
+    en: { m_r2a: "Roman ➔ Arabic", m_a2r: "Arabic ➔ Roman", clear: "Clear", next: "Next", correct: "Correct! 🎉" },
+    ko: { m_r2a: "로마자 ➔ 아라비아", m_a2r: "아라비아 ➔ 로마자", clear: "지우기", next: "다음", correct: "정답! 🎉" },
+    uz: { m_r2a: "Rim ➔ Arab", m_a2r: "Arab ➔ Rim", clear: "Tozalash", next: "Keyingisi", correct: "To'g'ri! 🎉" }
+  };
+
+  // --- Состояние приложения ---
+  let currentLang = 'ru';
+  let currentMode = 'R2A'; 
+  let targetArabic = 0;
+  let targetRoman = "";
+  let userInput = "";
+  let isSolved = false;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    updateTranslations();
+    generateNewPuzzle();
+  });
+
+  function convertArabicToRoman(num) {
+    const lookup = {M:1000, CM:900, D:500, CD:400, C:100, XC:90, L:50, XL:40, X:10, IX:9, V:5, IV:4, I:1};
+    let roman = '';
+    for (let i in lookup) {
+      while (num >= lookup[i]) {
+        roman += i;
+        num -= lookup[i];
+      }
+    }
+    return roman;
+  }
+
+  function generateNewPuzzle() {
+    isSolved = false;
+    userInput = "";
+    document.getElementById('input-display').classList.remove('success');
+    document.getElementById('status-msg').innerText = "";
+    document.getElementById('btn-next').style.display = 'none';
+    document.getElementById('btn-clear').style.display = 'block';
+
+    targetArabic = Math.floor(Math.random() * 399) + 1; 
+    targetRoman = convertArabicToRoman(targetArabic);
+
+    document.getElementById('target-display').innerText = currentMode === 'R2A' ? targetRoman : targetArabic;
+    
+    renderKeyboard();
+    updateInputDisplay();
+  }
+
+  function renderKeyboard() {
+    const container = document.getElementById('keyboard-container');
+    container.innerHTML = '';
+    
+    const kb = document.createElement('div');
+    kb.classList.add('keyboard');
+
+    if (currentMode === 'R2A') {
+      kb.classList.add('arabic');
+      const keys = ['1','2','3','4','5','6','7','8','9','0'];
+      keys.forEach(k => {
+        const btn = document.createElement('button');
+        btn.classList.add('key');
+        btn.innerText = k;
+        btn.onclick = () => pressKey(k);
+        kb.appendChild(btn);
+      });
+    } else {
+      kb.classList.add('roman');
+      const keys = ['I','V','X','L','C','D','M'];
+      keys.forEach(k => {
+        const btn = document.createElement('button');
+        btn.classList.add('key');
+        btn.innerText = k;
+        btn.onclick = () => pressKey(k);
+        kb.appendChild(btn);
+      });
+    }
+    container.appendChild(kb);
+  }
+
+  function pressKey(char) {
+    if (isSolved) return;
+    if (currentMode === 'R2A' && userInput === "" && char === '0') return;
+
+    userInput += char;
+    updateInputDisplay();
+    checkAnswer();
+  }
+
+  function clearInput() {
+    if (isSolved) return;
+    userInput = "";
+    updateInputDisplay();
+  }
+
+  function updateInputDisplay() {
+    document.getElementById('input-display').innerText = userInput;
+  }
+
+  function checkAnswer() {
+    const correctAnswer = currentMode === 'R2A' ? targetArabic.toString() : targetRoman;
+    
+    if (userInput === correctAnswer) {
+      isSolved = true;
+      document.getElementById('input-display').classList.add('success');
+      document.getElementById('status-msg').innerText = i18n[currentLang].correct;
+      document.getElementById('status-msg').style.color = 'var(--success)';
+      
+      document.getElementById('btn-clear').style.display = 'none';
+      document.getElementById('btn-next').style.display = 'block';
+    } 
+    else if (userInput.length >= correctAnswer.length && userInput !== correctAnswer) {
+      document.getElementById('input-display').style.borderColor = 'var(--error)';
+      setTimeout(() => {
+        if(!isSolved) document.getElementById('input-display').style.borderColor = '#cbd5e1';
+      }, 500);
+    }
+  }
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-flag').forEach(el => el.classList.remove('active'));
+    document.getElementById(`flag-${lang}`).classList.add('active');
+    updateTranslations();
+  }
+
+  function setMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(`btn-mode-${mode.toLowerCase()}`).classList.add('active');
+    generateNewPuzzle();
+  }
+
+  function updateTranslations() {
+    const t = i18n[currentLang];
+    document.getElementById('btn-mode-r2a').innerText = t.m_r2a;
+    document.getElementById('btn-mode-a2r').innerText = t.m_a2r;
+    document.getElementById('btn-clear').innerText = t.clear;
+    document.getElementById('btn-next').innerText = t.next;
+    
+    if (isSolved) {
+      document.getElementById('status-msg').innerText = t.correct;
+    }
+  }
+</script>
+</body>
+</html>
