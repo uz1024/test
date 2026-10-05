@@ -2,7 +2,10 @@
 <html>
 <head>
   <base target="_top">
+  <!-- Подключение шрифтов и графических флагов -->
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.1.0/css/flag-icons.min.css" />
+  
   <style>
     :root {
       --primary: #4F46E5;
@@ -38,7 +41,7 @@
       position: relative;
     }
 
-    /* Языки (Флаги) */
+    /* Языки (Векторные Флаги) */
     .lang-selector {
       display: flex;
       justify-content: center;
@@ -46,13 +49,20 @@
       margin-bottom: 25px;
     }
     .lang-flag {
-      font-size: 28px;
+      font-size: 32px; /* Размер флагов */
       cursor: pointer;
-      transition: transform 0.2s;
-      opacity: 0.5;
+      transition: transform 0.2s, opacity 0.2s;
+      opacity: 0.4;
+      border-radius: 4px;
+      overflow: hidden;
+      line-height: 1;
     }
-    .lang-flag:hover { transform: scale(1.2); }
-    .lang-flag.active { opacity: 1; transform: scale(1.15); filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3)); }
+    .lang-flag:hover { transform: scale(1.15); opacity: 0.8; }
+    .lang-flag.active { 
+      opacity: 1; 
+      transform: scale(1.2); 
+      filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3)); 
+    }
 
     /* Выбор режима */
     .mode-selector {
@@ -168,12 +178,20 @@
 <body>
 
 <div class="app-container">
-  <!-- Выбор языка -->
+  <!-- Выбор языка (теперь использует графические флаги) -->
   <div class="lang-selector">
-    <div class="lang-flag" onclick="setLang('ko')" id="flag-ko" title="한국어">🇰🇷</div>
-    <div class="lang-flag active" onclick="setLang('ru')" id="flag-ru" title="Русский">🇷🇺</div>
-    <div class="lang-flag" onclick="setLang('en')" id="flag-en" title="English">🇬🇧</div>
-    <div class="lang-flag" onclick="setLang('uz')" id="flag-uz" title="O'zbek">🇺🇿</div>
+    <div class="lang-flag" onclick="setLang('ko')" id="flag-ko" title="한국어">
+      <span class="fi fi-kr"></span>
+    </div>
+    <div class="lang-flag active" onclick="setLang('ru')" id="flag-ru" title="Русский">
+      <span class="fi fi-ru"></span>
+    </div>
+    <div class="lang-flag" onclick="setLang('en')" id="flag-en" title="English">
+      <span class="fi fi-gb"></span>
+    </div>
+    <div class="lang-flag" onclick="setLang('uz')" id="flag-uz" title="O'zbek">
+      <span class="fi fi-uz"></span>
+    </div>
   </div>
 
   <!-- Выбор режима -->
@@ -210,19 +228,17 @@
 
   // --- Состояние приложения ---
   let currentLang = 'ru';
-  let currentMode = 'R2A'; // R2A (Roman to Arabic) или A2R (Arabic to Roman)
+  let currentMode = 'R2A'; 
   let targetArabic = 0;
   let targetRoman = "";
   let userInput = "";
   let isSolved = false;
 
-  // --- Инициализация ---
   document.addEventListener("DOMContentLoaded", () => {
     updateTranslations();
     generateNewPuzzle();
   });
 
-  // --- Логика перевода чисел ---
   function convertArabicToRoman(num) {
     const lookup = {M:1000, CM:900, D:500, CD:400, C:100, XC:90, L:50, XL:40, X:10, IX:9, V:5, IV:4, I:1};
     let roman = '';
@@ -235,7 +251,6 @@
     return roman;
   }
 
-  // --- Генерация паззла ---
   function generateNewPuzzle() {
     isSolved = false;
     userInput = "";
@@ -244,8 +259,6 @@
     document.getElementById('btn-next').style.display = 'none';
     document.getElementById('btn-clear').style.display = 'block';
 
-    // Генерируем случайное число от 1 до 399
-    // (ограничил 399 для удобства игры, можно увеличить до 3999)
     targetArabic = Math.floor(Math.random() * 399) + 1; 
     targetRoman = convertArabicToRoman(targetArabic);
 
@@ -255,7 +268,6 @@
     updateInputDisplay();
   }
 
-  // --- Отрисовка клавиатуры ---
   function renderKeyboard() {
     const container = document.getElementById('keyboard-container');
     container.innerHTML = '';
@@ -287,11 +299,8 @@
     container.appendChild(kb);
   }
 
-  // --- Обработка ввода ---
   function pressKey(char) {
     if (isSolved) return;
-    
-    // Запрет нуля первым символом в арабском режиме
     if (currentMode === 'R2A' && userInput === "" && char === '0') return;
 
     userInput += char;
@@ -309,7 +318,6 @@
     document.getElementById('input-display').innerText = userInput;
   }
 
-  // --- Проверка правильности ---
   function checkAnswer() {
     const correctAnswer = currentMode === 'R2A' ? targetArabic.toString() : targetRoman;
     
@@ -319,11 +327,9 @@
       document.getElementById('status-msg').innerText = i18n[currentLang].correct;
       document.getElementById('status-msg').style.color = 'var(--success)';
       
-      // Показываем кнопку "Следующее"
       document.getElementById('btn-clear').style.display = 'none';
       document.getElementById('btn-next').style.display = 'block';
     } 
-    // Если введено больше символов чем нужно - подсвечиваем ошибку
     else if (userInput.length >= correctAnswer.length && userInput !== correctAnswer) {
       document.getElementById('input-display').style.borderColor = 'var(--error)';
       setTimeout(() => {
@@ -332,7 +338,6 @@
     }
   }
 
-  // --- Управление UI (Языки и Режимы) ---
   function setLang(lang) {
     currentLang = lang;
     document.querySelectorAll('.lang-flag').forEach(el => el.classList.remove('active'));
