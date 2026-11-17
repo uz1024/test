@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Глава 1. Данные, информация, база знаний и обработка данных — 10 класс</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-main: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border-color: #E2E8F0;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --success-bg: #DCFCE7;
+      --success-border: #16A34A;
+      --success-text: #15803D;
+      --danger-bg: #FFE4E6;
+      --danger-border: #E11D48;
+      --danger-text: #BE123C;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .option-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      width: 100%;
+      text-align: left;
+      background: #FFFFFF;
+      border: 2px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      color: #0F172A;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    .option-card:hover {
+      border-color: #93C5FD;
+      background: #F8FAFC;
+    }
+
+    .option-card.selected {
+      border-color: #2563EB;
+      background: #EFF6FF;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .option-indicator {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      border: 2px solid #94A3B8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      background: #FFFFFF;
+      color: transparent;
+    }
+
+    .option-card.selected .option-indicator {
+      background: #2563EB;
+      border-color: #2563EB;
+      color: #FFFFFF;
+    }
+
+    .timer-warn {
+      background-color: #FEF3C7 !important;
+      border-color: #F59E0B !important;
+      color: #B45309 !important;
+    }
+
+    .timer-danger {
+      background-color: #FFE4E6 !important;
+      border-color: #E11D48 !important;
+      color: #BE123C !important;
+      animation: pulse-danger 1s infinite;
+    }
+
+    .timer-paused {
+      background-color: #FEF3C7 !important;
+      border-color: #D97706 !important;
+      color: #92400E !important;
+    }
+
+    @keyframes pulse-danger {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    .giant-score {
+      font-size: clamp(4.5rem, 16vw, 13rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    select.pair-select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 2px solid #CBD5E1;
+      background-color: #FFFFFF;
+      color: #0F172A;
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    select.pair-select:focus {
+      border-color: #2563EB;
+    }
+
+    input.code-input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 2px solid #CBD5E1;
+      background-color: #FFFFFF;
+      color: #0F172A;
+      font-size: 18px;
+      font-weight: 700;
+      outline: none;
+    }
+
+    input.code-input:focus {
+      border-color: #2563EB;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+
+  <!-- СКРЫТАЯ ПАНЕЛЬ УЧИТЕЛЯ (Alt+S или 5 кликов по верхнему бейджу) -->
+  <div id="teacherPanel" class="hidden fixed bottom-4 right-4 z-50 bg-slate-900 text-white p-5 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full">
+    <div class="flex items-center justify-between border-b border-slate-700 pb-2.5 mb-3">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+        <span class="font-bold text-xs tracking-wider uppercase text-slate-200">Панель учителя (Тест / Демо)</span>
+      </div>
+      <button id="closeTeacherPanelBtn" type="button" class="text-slate-300 hover:text-white text-xs px-2.5 py-1 rounded bg-slate-800 cursor-pointer">
+        Закрыть (Alt+S)
+      </button>
+    </div>
+    <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+      Расписание автостарта: <b>10:40</b> (60 мин, зачёт за 3 ур.), <b>11:30</b> (35 мин, зачёт за 2 ур.), <b>11:55</b> (60 мин), <b>12:20</b> (35 мин).
+    </p>
+    <div class="grid grid-cols-2 gap-2 mb-3">
+      <button id="btnForceStart60" type="button" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-2.5 px-3 rounded-xl transition cursor-pointer">
+        ▶ Старт 60 мин (3 ур.)
+      </button>
+      <button id="btnForceStart35" type="button" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2.5 px-3 rounded-xl transition cursor-pointer">
+        ▶ Старт 35 мин (2 ур.)
+      </button>
+      <button id="btnForceWaiting" type="button" class="bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs py-2 px-3 rounded-xl transition cursor-pointer">
+        ⏳ Экран ожидания
+      </button>
+      <button id="btnForceEndScreen" type="button" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2 px-3 rounded-xl transition cursor-pointer">
+        🏁 Финальный экран
+      </button>
+      <button id="btnResetProgress" type="button" class="col-span-2 bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs py-2 px-3 rounded-xl transition cursor-pointer">
+        ↺ Сбросить баллы, паузу и сгенерировать новый вариант
+      </button>
+    </div>
+    <div>
+      <div class="text-[11px] text-slate-400 mb-1.5 uppercase font-bold">Быстрый переход к этапу:</div>
+      <div class="grid grid-cols-5 gap-1.5" id="teacherStageJump"></div>
+    </div>
+  </div>
+
+  <!-- 1. ЭКРАН ОЖИДАНИЯ ДО НАЧАЛА УРОКА -->
+  <div id="waitingScreen" class="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
+    <div class="max-w-4xl w-full bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-12 text-center relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500"></div>
+
+      <!-- Бейдж для вызова панели учителя (5 кликов) -->
+      <div id="secretTeacherBadge" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-extrabold tracking-wider uppercase mb-6 cursor-pointer" title="Нажмите 5 раз или Alt+S для панели учителя">
+        <span id="waitingSubjectBadge">10 КЛАСС • ИНФОРМАТИКА И ИТ</span>
+        <span>•</span>
+        <span id="waitingBadgeModeText">ПОВТОРЕНИЕ И ЗАКРЕПЛЕНИЕ</span>
+      </div>
+
+      <h1 id="waitingChapterTitle" class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-4">
+        Глава 1. Данные, информация, база знаний и обработка данных
+      </h1>
+      <p id="waitingChapterSubtitle" class="text-base md:text-lg text-slate-600 max-w-2xl mx-auto mb-8">
+        Автоматический интерактивный урок из <b>10 этапов</b>. Приготовьте учебник (стр. 1–22) и тетрадь с конспектом.
+      </p>
+
+      <!-- Таймер до ТОЛЬКО БЛИЖАЙШЕГО времени старта -->
+      <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-6 md:p-8 max-w-2xl mx-auto mb-8">
+        <div id="waitingTargetSlotLabel" class="text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-2">
+          ДО БЛИЖАЙШЕГО АВТОМАТИЧЕСКОГО СТАРТА ОСТАЛОСЬ:
+        </div>
+        <div id="waitingCountdown" class="font-mono-code text-5xl md:text-7xl font-black text-blue-600 tracking-tight my-3">
+          00:00:00
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-4 text-sm text-slate-600 mt-4 pt-3 border-t border-slate-200">
+          <div>Текущее время: <span id="systemClockDisplay" class="font-mono-code font-bold text-slate-900">--:--:--</span></div>
+          <span class="text-slate-300">|</span>
+          <div>Ближайший старт: <span id="waitingNearestStartInfo" class="font-extrabold text-blue-700">--:--</span></div>
+        </div>
+      </div>
+
+      <!-- Памятка для ученика -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left max-w-3xl mx-auto">
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <div class="text-blue-700 font-extrabold text-sm mb-1">📖 1. Учебник и пауза</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Держите открытыми конспект и учебник. Один раз за урок доступна кнопка <b>Пауза (до 5 минут)</b>, если нужно отойти.
+          </p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <div class="text-emerald-700 font-extrabold text-sm mb-1">🎯 2. Условие зачёта этапа</div>
+          <p id="waitingPassRuleDesc" class="text-xs text-slate-600 leading-relaxed">
+            Пройдите требуемые уровни этапа, чтобы флаг усвоения наверху переключился на <b class="text-emerald-700">ДОСТАТОЧНО (+1 балл)</b>.
+          </p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <div class="text-amber-700 font-extrabold text-sm mb-1">🛡️ 3. Защита от угадывания</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            У каждого компьютера свой вариант. При ошибке и в бонус-режиме действует анти-клик таймер и смена данных.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ЭКРАН АКТИВНОГО УРОКА -->
+  <div id="lessonScreen" class="hidden flex-1 flex flex-col">
+    <!-- ВЕРХНЯЯ ЗАКРЕПЛЕННАЯ ПАНЕЛЬ -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-2.5">
+        <!-- Верхний ряд шапки -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span id="headerStageBadge" class="px-3 py-1 rounded-lg bg-blue-600 text-white font-extrabold text-xs uppercase tracking-wider cursor-pointer" title="5 кликов или Alt+S — панель учителя">
+              Этап 1 из 10
+            </span>
+            <div>
+              <h2 id="headerStageTitle" class="text-base md:text-lg font-extrabold text-slate-900 leading-snug">
+                Данные, информация и база знаний
+              </h2>
+              <div class="flex items-center gap-2 text-xs text-slate-500">
+                <span id="headerStageRef">§ 1.01, стр. 2–3</span>
+                <span>•</span>
+                <span id="headerStageSubtitle" class="font-medium text-slate-600">Продвижение: Знание → Понимание → Применение</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Индикатор 10 этапов (точки) и счётчик баллов -->
+          <div class="flex items-center gap-4">
+            <div id="stageDotsContainer" class="hidden lg:flex items-center gap-1.5"></div>
+            <div class="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl">
+              <div class="text-xs font-bold text-slate-600">Баллы:</div>
+              <div id="headerTotalScore" class="font-mono-code text-sm font-black text-slate-900">0 / 10</div>
+              <div id="headerBonusScore" class="font-mono-code text-xs font-extrabold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700" title="Бонусные баллы за дополнительные задания">+0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Нижний ряд шапки: Флаг усвоения этапа, Кнопка однократной паузы и Таймер этапа -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+          <!-- Флаг усвоения -->
+          <div id="headerMasteryFlag" class="px-3.5 py-2 rounded-xl border text-xs font-extrabold tracking-wide uppercase flex items-center gap-2 bg-rose-50 border-rose-300 text-rose-800">
+            <span id="headerMasteryIcon" class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+            <span id="headerMasteryText">УСВОЕНИЕ: НЕДОСТАТОЧНО (0 БАЛЛОВ)</span>
+          </div>
+
+          <!-- Блок управления временем: Однократная пауза (до 5 мин) + Таймер текущего этапа -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button id="btnLessonPause" type="button" class="px-3.5 py-2 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-extrabold tracking-wide transition cursor-pointer flex items-center gap-1.5">
+              <span>⏸ Пауза (до 5 мин • 1 раз)</span>
+            </button>
+
+            <div id="headerTimerBox" class="flex items-center gap-2.5 px-4 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900">
+              <span id="headerTimerLabel" class="text-xs font-bold uppercase tracking-wider text-slate-500">Осталось на этап:</span>
+              <span id="headerStageTimer" class="font-mono-code text-xl md:text-2xl font-black tracking-tight">05:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ОСНОВНАЯ РАБОЧАЯ ОБЛАСТЬ ЭТАПА -->
+    <main class="max-w-5xl w-full mx-auto px-4 py-6 flex-1 flex flex-col gap-5">
+      <!-- Степпер уровней внутри текущего этапа -->
+      <div id="levelStepper" class="grid grid-cols-1 sm:grid-cols-4 gap-2.5"></div>
+
+      <!-- Карточка активного задания -->
+      <div id="taskWorkspace" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8 flex-1 flex flex-col justify-between"></div>
+    </main>
+  </div>
+
+  <!-- 3. ФИНАЛЬНЫЙ ЭКРАН (ДЛЯ УЧИТЕЛЯ ЧЕРЕЗ ВЕСЬ КЛАСС) -->
+  <div id="finalScreen" class="hidden flex-1 flex flex-col items-center justify-center p-6 min-h-screen bg-emerald-100">
+    <div id="finalCard" class="max-w-5xl w-full rounded-3xl border-4 border-emerald-500 p-8 md:p-12 text-center shadow-xl bg-white">
+      <div id="finalStatusBadge" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest mb-2 bg-emerald-100 text-emerald-800 border border-emerald-300">
+        УРОК ЗАВЕРШЁН • ИТОГОВЫЙ РЕЗУЛЬТАТ
+      </div>
+
+      <h1 id="finalChapterTitle" class="text-xl md:text-2xl font-extrabold text-slate-700 mt-1">
+        Глава 1. Данные, информация, база знаний и обработка данных
+      </h1>
+
+      <!-- Сверхкрупный балл для обзора учителем через весь класс -->
+      <div id="finalGiantScore" class="giant-score font-mono-code font-black my-4 text-emerald-600">
+        0 / 10
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-4 mb-8">
+        <div class="px-5 py-2.5 rounded-2xl bg-slate-100 border border-slate-200 text-sm font-bold text-slate-700">
+          Выполнено уровней: <span id="finalLevelsCount" class="font-mono-code font-black text-slate-900">0 / 30</span>
+        </div>
+        <div class="px-5 py-2.5 rounded-2xl bg-indigo-50 border border-indigo-200 text-sm font-bold text-indigo-900">
+          Бонус-заданий сверх нормы: <span id="finalBonusCount" class="font-mono-code font-black text-indigo-700">+0</span>
+        </div>
+      </div>
+
+      <!-- Сводка по каждому из 10 этапов -->
+      <div id="finalStageBreakdown" class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-left"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /***********************************************************************
+       * 1. КОНФИГУРАЦИЯ ФРЕЙМВОРКА УРОКА (ДАННЫЕ ГЛАВЫ, РАСПИСАНИЕ И ПАРАМЕТРЫ)
+       *    Для создания урока по следующей главе достаточно заменить содержимое
+       *    объекта LESSON_CONFIG и генераторы заданий в секции 3.
+       ***********************************************************************/
+      const LESSON_CONFIG = {
+        storageKey: "ch1_lesson_v4_framework_state",
+        subjectBadge: "10 КЛАСС • ИНФОРМАТИКА И ИТ",
+        chapterTitle: "Глава 1. Данные, информация, база знаний и обработка данных",
+        chapterSubtitleHtml: "Автоматический интерактивный урок из <b>10 этапов</b>. Приготовьте учебник (стр. 1–22) и тетрадь с конспектом.",
+        maxPauseDurationSec: 300,      // Максимальная длительность однократной паузы: 5 минут (300 с)
+        baseErrorCooldownSec: 5,       // Базовая пауза при ошибке на уровнях 1–3
+        bonusReadLockSec: 6,           // Анти-клик: минимальное время чтения бонус-задания перед ответом (6 с)
+        bonusErrorCooldowns: [10, 15, 20], // Прогрессивный штраф за ошибки подряд в бонус-режиме (10 с -> 15 с -> 20 с)
+        scheduleSlots: [
+          { hour: 10, minute: 40, label: "10:40", mode: "60MIN", durationMin: 60, requiredLevels: 3 },
+          { hour: 11, minute: 30, label: "11:30", mode: "35MIN", durationMin: 35, requiredLevels: 2 },
+          { hour: 11, minute: 55, label: "11:55", mode: "60MIN", durationMin: 60, requiredLevels: 3 },
+          { hour: 12, minute: 20, label: "12:20", mode: "35MIN", durationMin: 35, requiredLevels: 2 }
+        ],
+        stages: [
+          {
+            id: 1,
+            title: "Данные, информация и база знаний",
+            ref: "§ 1.01, стр. 2–3",
+            duration60Sec: 360, // 6 мин
+            duration35Sec: 180, // 3 мин
+            shortName: "1. Данные/Знания"
+          },
+          {
+            id: 2,
+            title: "Статические и динамические данные",
+            ref: "§ 1.02, стр. 3–4",
+            duration60Sec: 360, // 6 мин
+            duration35Sec: 180, // 3 мин
+            shortName: "2. Стат./Динам."
+          },
+          {
+            id: 3,
+            title: "Прямые и косвенные источники данных",
+            ref: "§ 1.02, стр. 5–6",
+            duration60Sec: 360, // 6 мин
+            duration35Sec: 240, // 4 мин
+            shortName: "3. Источники"
+          },
+          {
+            id: 4,
+            title: "Качество информации: 5 характеристик",
+            ref: "§ 1.03, стр. 6–8",
+            duration60Sec: 360, // 6 мин
+            duration35Sec: 180, // 3 мин
+            shortName: "4. Качество инф."
+          },
+          {
+            id: 5,
+            title: "Информационное кодирование: плюсы и минусы",
+            ref: "§ 1.04, стр. 8–9",
+            duration60Sec: 360, // 6 мин
+            duration35Sec: 240, // 4 мин
+            shortName: "5. Кодирование"
+          },
+          {
+            id: 6,
+            title: "Кодирование текста и графики (ASCII, Растр, RLE)",
+            ref: "§ 1.04, стр. 10–13",
+            duration60Sec: 360, // 6 мин
+            duration35Sec: 240, // 4 мин
+            shortName: "6. Текст/Графика"
+          },
+          {
+            id: 7,
+            title: "Параметры цифрового аудио и видео",
+            ref: "§ 1.04, стр. 11–13",
+            duration60Sec: 360, // 6 мин
+            duration35Sec: 180, // 3 мин
+            shortName: "7. Аудио/Видео"
+          },
+          {
+            id: 8,
+            title: "Шифрование: Цезарь, симметричное и асимметричное",
+            ref: "§ 1.04, стр. 13–15",
+            duration60Sec: 360, // 6 мин
+            duration35Sec: 240, // 4 мин
+            shortName: "8. Криптография"
+          },
+          {
+            id: 9,
+            title: "Протоколы HTTPS (SSL/TLS), Wi-Fi и защита дисков",
+            ref: "§ 1.04, стр. 15–16",
+            duration60Sec: 360, // 6 мин
+            duration35Sec: 180, // 3 мин
+            shortName: "9. HTTPS / Сети"
+          },
+          {
+            id: 10,
+            title: "Валидация, контрольная цифра и верификация",
+            ref: "§ 1.05, стр. 16–21",
+            duration60Sec: 360, // 6 мин
+            duration35Sec: 240, // 4 мин
+            shortName: "10. Валидация"
+          }
+        ]
+      };
+
+      const STAGES_CONFIG = LESSON_CONFIG.stages;
+      const SCHEDULE_SLOTS = LESSON_CONFIG.scheduleSlots;
+
+      let currentLessonMode = "60MIN";
+      let TOTAL_LESSON_SEC = 3600;
+
+      function applyLessonModeTimings(mode) {
+        currentLessonMode = mode === "35MIN" ? "35MIN" : "60MIN";
+        let cumulative = 0;
+        for (let i = 0; i < STAGES_CONFIG.length; i++) {
+          const s = STAGES_CONFIG[i];
+          s.durationSec = currentLessonMode === "35MIN" ? s.duration35Sec : s.duration60Sec;
+          s.startOffsetSec = cumulative;
+          s.endOffsetSec = cumulative + s.durationSec;
+          cumulative += s.durationSec;
+        }
+        TOTAL_LESSON_SEC = cumulative;
+      }
+
+      function getRequiredLevelsForPass(mode) {
+        const m = mode || currentLessonMode;
+        return m === "35MIN" ? 2 : 3;
+      }
+
+      function isStagePassed(stageState, mode) {
+        return stageState.levelsCompleted >= getRequiredLevelsForPass(mode);
+      }
+
+      applyLessonModeTimings("60MIN");
+
+      /***********************************************************************
+       * 2. ХРАНЕНИЕ СОСТОЯНИЯ УЧЕНИКА И УТИЛИТЫ РАНДОМИЗАЦИИ
+       ***********************************************************************/
+      const STORAGE_KEY = LESSON_CONFIG.storageKey;
+
+      function createFreshState() {
+        return {
+          seed: Math.floor(Math.random() * 900000) + 100000,
+          bonusPoints: 0,
+          pauseUsed: false,
+          isPaused: false,
+          pauseStartedAtMs: null,
+          totalPausedMs: 0,
+          bonusErrorStreak: 0,
+          solvedBonusKeys: [],
+          stages: STAGES_CONFIG.map(function (s) {
+            return {
+              id: s.id,
+              levelsCompleted: 0, // 0..3
+              passed: false,
+              bonusSolvedInStage: 0
+            };
+          })
+        };
+      }
+
+      function loadOrInitState() {
+        try {
+          const raw = sessionStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.stages) && parsed.stages.length === STAGES_CONFIG.length) {
+              parsed.pauseUsed = !!parsed.pauseUsed;
+              parsed.isPaused = !!parsed.isPaused;
+              parsed.pauseStartedAtMs = parsed.pauseStartedAtMs || null;
+              parsed.totalPausedMs = Number(parsed.totalPausedMs) || 0;
+              parsed.bonusErrorStreak = Number(parsed.bonusErrorStreak) || 0;
+              parsed.solvedBonusKeys = Array.isArray(parsed.solvedBonusKeys) ? parsed.solvedBonusKeys : [];
+              return parsed;
+            }
+          }
+        } catch (err) {
+          // Игнорируем возможные ограничения sessionStorage
+        }
+        return createFreshState();
+      }
+
+      let appState = loadOrInitState();
+
+      function saveState() {
+        try {
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        } catch (err) {
+          // Игнорируем ошибку записи
+        }
+      }
+
+      function shuffle(arr) {
+        const copy = arr.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const temp = copy[i];
+          copy[i] = copy[j];
+          copy[j] = temp;
+        }
+        return copy;
+      }
+
+      function pickOne(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+
+      function pickMany(arr, count) {
+        return shuffle(arr).slice(0, count);
+      }
+
+      /***********************************************************************
+       * 3. ГЕНЕРАТОРЫ РАНДОМИЗИРОВАННЫХ ЗАДАНИЙ ДЛЯ 10 ЭТАПОВ
+       *    Типы шаблонов:
+       *    - "single": выбор одного верного ответа
+       *    - "multi": выбор всех верных утверждений (чекбоксы)
+       *    - "matching": сопоставление пар (выпадающие списки)
+       *    - "input": ввод точного слова/числа (для шифра Цезаря и RLE)
+       ***********************************************************************/
+      function generateTaskForStageAndLevel(stageIndex, levelIndex) {
+        const stageNum = stageIndex + 1;
+
+        // ==================== ЭТАП 1: Данные, информация и база знаний ====================
+        if (stageNum === 1) {
+          if (levelIndex === 0) {
+            const rawPool = [
+              { text: "P952BR", isRaw: true },
+              { text: "59000", isRaw: true },
+              { text: "@bbcclick", isRaw: true },
+              { text: "23557,99", isRaw: true },
+              { text: "016707BA", isRaw: true },
+              { text: "59000 сумов — цена чехла для мобильного телефона", isRaw: false },
+              { text: "P952BR — код товара «Замороженный лагман»", isRaw: false },
+              { text: "Ограничение скорости в населённых пунктах Узбекистана — 60 км/ч", isRaw: false },
+              { text: "Ш. Мирзиёев избран Президентом 24 октября 2021 года", isRaw: false }
+            ];
+            const chosenRaw = pickMany(rawPool.filter(function (x) { return x.isRaw; }), 2);
+            const chosenInfo = pickMany(rawPool.filter(function (x) { return !x.isRaw; }), 2);
+            const combined = shuffle(chosenRaw.concat(chosenInfo));
+
+            return {
+              type: "multi",
+              badge: "Уровень 1 • Знание (§ 1.01, стр. 2)",
+              prompt: "Отметьте ВСЕ строки, которые являются чистыми ДАННЫМИ (необработанными символами или числами без контекста и смысла):",
+              hintRef: "Стр. 2: Приводя пример элемента данных, не пытайтесь объяснить, что они означают, иначе они становятся информацией.",
+              options: combined.map(function (item) {
+                return { label: item.text, correct: item.isRaw };
+              })
+            };
+          }
+
+          if (levelIndex === 1) {
+            const cases = [
+              {
+                raw: "P952BR",
+                ctx: "Известно только, что это «Код товара», но какого именно товара — неизвестно.",
+                info: "Код товара «Замороженный лагман» в базе супермаркета."
+              },
+              {
+                raw: "59000",
+                ctx: "Известно только, что это сумма «В узбекских сумах», но не ясно, что она обозначает.",
+                info: "Цена чехла для мобильного телефона (59 000 сумов)."
+              },
+              {
+                raw: "@bbcclick",
+                ctx: "Известно только, что это формат учётной записи Twitter, но неизвестно, чей это аккаунт.",
+                info: "Официальный аккаунт еженедельной передачи BBC о технологиях Click."
+              }
+            ];
+            const c = pickOne(cases);
+            return {
+              type: "matching",
+              badge: "Уровень 2 • Понимание (§ 1.01, стр. 2)",
+              prompt: "Проследите цепочку превращения элемента «" + c.raw + "» в информацию. Сопоставьте этап и его описание:",
+              hintRef: "Стр. 2: Определение типа данных и контекста — это лишь первый шаг, но ещё не информация. Информацией данные становятся только тогда, когда получают конкретное значение (смысл).",
+              pairs: shuffle([
+                { left: c.raw + " (без каких-либо пояснений)", right: "Необработанные данные" },
+                { left: c.ctx, right: "Данные с контекстом (но ещё НЕ информация)" },
+                { left: c.info, right: "Полноценная информация (есть смысл и значение)" }
+              ]),
+              choices: [
+                "Необработанные данные",
+                "Данные с контекстом (но ещё НЕ информация)",
+                "Полноценная информация (есть смысл и значение)"
+              ]
+            };
+          }
+
+          // Уровень 3: Применение (База знаний)
+          const kbScenarios = [
+            {
+              fact: "Информация: «60 км/ч — ограничение скорости в населённых пунктах Узбекистана».",
+              correctKB: "В Узбекистане запрещено превышать скорость 60 км/ч в населённых пунктах, поэтому водитель должен снизить скорость.",
+              wrong1: "60 — это целое двузначное положительное число.",
+              wrong2: "Символы «км/ч» означают единицу измерения скорости.",
+              wrong3: "На дорогах устанавливаются дорожные знаки круглой формы."
+            },
+            {
+              fact: "Информация: «На светофоре перед перекрёстком загорелся красный сигнал».",
+              correctKB: "Красный свет светофора означает, что автомобиль обязан остановиться перед стоп-линией.",
+              wrong1: "Красный цвет имеет самую большую длину волны в видимом спектре.",
+              wrong2: "Светофор состоит из трёх секций: красной, жёлтой и зелёной.",
+              wrong3: "Код красного цвета в RGB записывается как (255, 0, 0)."
+            },
+            {
+              fact: "Информация: «Чехол для мобильного телефона стоит 59 000 сумов».",
+              correctKB: "Понимание на основе опыта, что этот чехол для телефона стоит дороже чайника чая в кафе.",
+              wrong1: "59000 — это число, записанное в десятичной системе счисления.",
+              wrong2: "Валютой Республики Узбекистан является узбекский сум.",
+              wrong3: "Цена товара хранится в числовом поле базы данных магазина."
+            }
+          ];
+          const sc = pickOne(kbScenarios);
+          return {
+            type: "single",
+            badge: "Уровень 3 • Применение (§ 1.01, стр. 3)",
+            prompt: sc.fact + " Какое суждение представляет собой применение БАЗЫ ЗНАНИЙ (опыта и правил) к этой информации?",
+            hintRef: "Стр. 3 (Таблица примеров): База знаний использует человеческий опыт и правила для интерпретации информации и принятия решений.",
+            options: shuffle([
+              { label: sc.correctKB, correct: true },
+              { label: sc.wrong1, correct: false },
+              { label: sc.wrong2, correct: false },
+              { label: sc.wrong3, correct: false }
+            ])
+          };
+        }
+
+        // ==================== ЭТАП 2: Статические и динамические данные ====================
+        if (stageNum === 2) {
+          if (levelIndex === 0) {
+            const props = [
+              { left: "Обновляются автоматически при изменении исходных данных без участия пользователя", right: "Динамические данные" },
+              { left: "Не изменяются или требуют ручного редактирования документа", right: "Статические данные" },
+              { left: "С большей вероятностью будут точными, так как дольше проверяются перед публикацией", right: "Статические данные" },
+              { left: "Всегда свежие, но могут содержать ошибки из-за очень быстрого формирования", right: "Динамические данные" },
+              { left: "Можно свободно просматривать в автономном (офлайн) режиме", right: "Статические данные" }
+            ];
+            return {
+              type: "matching",
+              badge: "Уровень 1 • Знание (§ 1.02, стр. 3–4, Табл. 1.01)",
+              prompt: "Сопоставьте характеристику источника с его типом (Статические или Динамические данные):",
+              hintRef: "Стр. 4, Таблица 1.01: Сравнительная таблица источников статической и динамической информации.",
+              pairs: pickMany(props, 4),
+              choices: ["Статические данные", "Динамические данные"]
+            };
+          }
+
+          if (levelIndex === 1) {
+            const items = [
+              { label: "Онлайн-табло времени прибытия поезда (обновляется по GPS и скорости поезда)", isDyn: true },
+              { label: "Фотобанк на сайте uza.uz, автоматически подгружающий новые фотоотчёты из внешней БД", isDyn: true },
+              { label: "Наличие свободных билетов на концерт при онлайн-покупке на сайте", isDyn: true },
+              { label: "Спортивные онлайн-результаты матча на сайте в реальном времени", isDyn: true },
+              { label: "Энциклопедия, записанная на диск CD-ROM", isDyn: false },
+              { label: "Напечатанный ежемесячный бумажный журнал", isDyn: false },
+              { label: "Названия дней недели в сетке календаря (Пн, Вт, Ср, Чт, Пт, Сб, Вс)", isDyn: false },
+              { label: "Текст инструкции на экране ввода данных или страница «О нас» со статичными ссылками", isDyn: false }
+            ];
+            const dynPick = pickMany(items.filter(function (x) { return x.isDyn; }), 2);
+            const statPick = pickMany(items.filter(function (x) { return !x.isDyn; }), 2);
+            return {
+              type: "multi",
+              badge: "Уровень 2 • Понимание (§ 1.02, стр. 3–4)",
+              prompt: "Отметьте ВСЕ примеры, которые относятся к ДИНАМИЧЕСКИМ данным:",
+              hintRef: "Стр. 3–4: Динамические данные обновляются автоматически по мере изменения исходного источника (базы данных, датчиков, покупок).",
+              options: shuffle(dynPick.concat(statPick)).map(function (x) {
+                return { label: x.label, correct: x.isDyn };
+              })
+            };
+          }
+
+          // Уровень 3: Применение (Электронная таблица со стр. 4 и стр. 6)
+          const sheets = [
+            {
+              title: "Расчёт площади дорожного покрытия (Рис. 1.07 учебника)",
+              c1: "Ячейка A1: заголовок текста «Калькулятор площади»",
+              c2: "Ячейки B2 и B3: введённые вручную исходные числа Длина = 3 м, Ширина = 5 м",
+              c3: "Ячейка C4: Площадь = 15 м² (рассчитывается по формуле Длина × Ширина)"
+            },
+            {
+              title: "Калькулятор прибыли магазина (стр. 4 учебника)",
+              c1: "Ячейка A1: заголовок столбца «Наименование товара»",
+              c2: "Ячейки B2 и C2: фиксированная себестоимость закупки в накладной",
+              c3: "Ячейка D2: Прибыль = Цена − Себестоимость (пересчитывается при изменении цены)"
+            }
+          ];
+          const sh = pickOne(sheets);
+          return {
+            type: "matching",
+            badge: "Уровень 3 • Применение (§ 1.02, стр. 4, 6)",
+            prompt: "Проанализируйте электронную таблицу «" + sh.title + "» и определите тип данных в каждой ячейке:",
+            hintRef: "Стр. 4 и стр. 6 (вопросы 4–5): Заголовки и вручную введённые константы статичны, а вычисляемая по формуле площадь/прибыль динамически меняется при изменении исходных ячеек.",
+            pairs: [
+              { left: sh.c1, right: "Статические данные" },
+              { left: sh.c2, right: "Статические данные" },
+              { left: sh.c3, right: "Динамические данные" }
+            ],
+            choices: ["Статические данные", "Динамические данные"]
+          };
+        }
+
+        // ==================== ЭТАП 3: Прямые и косвенные источники данных ====================
+        if (stageNum === 3) {
+          if (levelIndex === 0) {
+            return {
+              type: "single",
+              badge: "Уровень 1 • Знание (§ 1.02, стр. 5)",
+              prompt: "В чём состоит ключевое отличие ПРЯМОГО источника данных (первоисточника) от КОСВЕННОГО (вторичного)?",
+              hintRef: "Стр. 5: Прямые данные собираются специально для предполагаемой цели использования, а косвенные были собраны ранее для совершенно другой цели.",
+              options: shuffle([
+                { label: "Прямые данные собираются специально для той цели, для которой они используются, а косвенные изначально собирались для другой цели", correct: true },
+                { label: "Прямые данные всегда скачиваются из Интернета, а косвенные берутся только из бумажных книг", correct: false },
+                { label: "Косвенные данные всегда точнее и актуальнее прямых источников", correct: false },
+                { label: "Прямые данные бесплатны, а косвенные всегда требуют покупки лицензии", correct: false }
+              ])
+            };
+          }
+
+          if (levelIndex === 1) {
+            const tableCases = [
+              {
+                left: "Даты и время прихода сотрудников (собирались для расчёта зарплаты) → переданы полиции для проверки алиби",
+                right: "Косвенный источник"
+              },
+              {
+                left: "Расписание рейсов и цены на сайте авиакомпании → используются пассажиром для выбора выгодного перелёта во Флориду",
+                right: "Прямой источник"
+              },
+              {
+                left: "Данные переписи населения (возраст и адреса) → переданы маркетологам для поиска районов с наибольшим числом детей",
+                right: "Косвенный источник"
+              },
+              {
+                left: "Сводка с метеостанции (собиралась для записи текущей погоды) → выводится на погодном сайте как текущая температура",
+                right: "Прямой источник"
+              },
+              {
+                left: "Электронные адреса членов политической партии (собирались для партийной связи) → используются для рассылки приглашений на благотворительную акцию",
+                right: "Косвенный источник"
+              },
+              {
+                left: "Кассовые чеки покупателей из чужого магазина (печатались как подтверждение покупки) → изучаются конкурентом для анализа цен на кроссовки",
+                right: "Косвенный источник"
+              }
+            ];
+            return {
+              type: "matching",
+              badge: "Уровень 2 • Понимание (§ 1.02, стр. 5, Задание)",
+              prompt: "Определите по соотношению «Цель сбора → Как используется», какой это источник (Прямой или Косвенный):",
+              hintRef: "Стр. 5 (Таблица в задании): Если цель использования совпадает с первоначальной целью сбора — источник прямой; если цель изменилась — косвенный.",
+              pairs: pickMany(tableCases, 4),
+              choices: ["Прямой источник", "Косвенный источник"]
+            };
+          }
+
+          // Уровень 3: Применение (Преимущества и недостатки, Табл. 1.02)
+          const builderCases = [
+            {
+              q: "Строителю нужно узнать точную длину и ширину участка дороги для расчёта покрытия (стр. 6, вопр. 6–8). Почему личный замер участка рулеткой (прямой источник) предпочтительнее использования старой карты района (косвенного источника)?",
+              ok: "Прямой источник гарантирует достоверность, актуальность, нужный формат и отсутствие лишних данных, так как замер проводится специально под проект",
+              w1: "Личный замер участка занимает меньше времени и не требует никаких усилий по сравнению с готовой картой",
+              w2: "Косвенный источник всегда содержит только актуальные данные в идеальном формате",
+              w3: "Прямой источник позволяет мгновенно получить крупномасштабную выборку по всей стране без выезда на место"
+            },
+            {
+              q: "Социологу нужно за 1 час проанализировать крупномасштабную выборку из 50 000 человек, и у него нет времени проводить собственный опрос. В чём главный ПЛЮС и главный МИНУС выбора косвенного источника (Таблица 1.02)?",
+              ok: "Плюс: данные уже доступны сейчас и имеют большой объём выборки; Минус: они могут быть устаревшими, предвзятыми и содержать много ненужных данных",
+              w1: "Плюс: первоисточник всегда известен и лишён предвзятости; Минус: нужно ждать несколько месяцев, пока данные соберут",
+              w2: "Плюс: данные идеально отформатированы под задачу социолога; Минус: выборка в косвенных источниках всегда слишком маленькая",
+              w3: "У косвенных источников нет недостатков при статистическом анализе"
+            }
+          ];
+          const bc = pickOne(builderCases);
+          return {
+            type: "single",
+            badge: "Уровень 3 • Применение (§ 1.02, стр. 6, Табл. 1.02)",
+            prompt: bc.q,
+            hintRef: "Стр. 6, Таблица 1.02: Преимущества и недостатки прямых и косвенных источников данных.",
+            options: shuffle([
+              { label: bc.ok, correct: true },
+              { label: bc.w1, correct: false },
+              { label: bc.w2, correct: false },
+              { label: bc.w3, correct: false }
+            ])
+          };
+        }
+
+        // ==================== ЭТАП 4: Качество информации (5 характеристик) ====================
+        if (stageNum === 4) {
+          if (levelIndex === 0) {
+            const defs = [
+              { left: "Отсутствие ошибок, опечаток, перепутанных цифр и неверной постановки запятой (например, 100,00 vs 10 000)", right: "Точность" },
+              { left: "Соответствие информации цели её использования (без посторонних сведений не по теме)", right: "Актуальность (соответствие)" },
+              { left: "Свежесть информации; то, насколько данные не устарели со временем", right: "Срок (давность)" },
+              { left: "Отсутствие как избыточной перегруженности мелочами, так и нехватки нужных подробностей", right: "Уровень детализации" },
+              { left: "Наличие абсолютно всех обязательных сведений, без которых задачу нельзя выполнить", right: "Полнота" }
+            ];
+            return {
+              type: "matching",
+              badge: "Уровень 1 • Знание (§ 1.03, стр. 6–7)",
+              prompt: "Сопоставьте каждое определение с одной из 5 характеристик качества информации:",
+              hintRef: "Стр. 6–7: Точность, Актуальность, Срок, Уровень детализации и Полнота.",
+              pairs: shuffle(defs),
+              choices: ["Точность", "Актуальность (соответствие)", "Срок (давность)", "Уровень детализации", "Полнота"]
+            };
+          }
+
+          if (levelIndex === 1) {
+            return {
+              type: "single",
+              badge: "Уровень 2 • Понимание (§ 1.03, стр. 7, Рис. 1.08)",
+              prompt: "В учебнике на рис. 1.08 приведено приглашение: «Азиза Авлиёкулова приглашает на день рождения! 22 февраля в 11:00–13:30. Будут фокусники, артисты, шарики и торт». Какая характеристика качества информации грубо нарушена, из-за чего гости НЕ смогут прийти?",
+              hintRef: "Стр. 7 (Рис. 1.08): В приглашении указаны имя, дата, время и программа, но полностью отсутствует АДРЕС (место проведения) и год!",
+              options: shuffle([
+                { label: "Полнота — в приглашении не указан адрес (место проведения праздника), поэтому прийти невозможно", correct: true },
+                { label: "Уровень детализации слишком избыточен — перечисление торта и шариков мешает прочитать время", correct: false },
+                { label: "Точность — время 11:00–13:30 записано в неверном часовом формате", correct: false },
+                { label: "Актуальность — приглашение на день рождения содержит расписание движения поездов", correct: false }
+              ])
+            };
+          }
+
+          // Уровень 3: Применение (Различение похожих дефектов качества)
+          const qualityCases = [
+            {
+              left: "Пассажир позвонил узнать время прибытия поезда в Бухару, но вынужден слушать время стоянки на всех 20 промежуточных станциях",
+              right: "Уровень детализации (избыточность)"
+            },
+            {
+              left: "Вы собираетесь купить автомобиль в собственность, а менеджер даёт вам прайс-лист на посуточную аренду машин",
+              right: "Актуальность (несоответствие цели)"
+            },
+            {
+              left: "Мужчина записался в автосервис, механик назвал ему улицу, но забыл назвать номер дома (или заказ пиццы без адреса)",
+              right: "Полнота"
+            },
+            {
+              left: "Планирование городской инфраструктуры в 2026 году на основе переписи населения 2011 года",
+              right: "Срок (устаревшая информация)"
+            },
+            {
+              left: "В регистрационном номере авто вместо 016707BA напечатали 016070BA (или написали «компания» вместо «кампания»)",
+              right: "Точность"
+            }
+          ];
+          return {
+            type: "matching",
+            badge: "Уровень 3 • Применение (§ 1.03, стр. 6–7)",
+            prompt: "Проведите аудит 4 реальных ситуаций из учебника и укажите, какая именно метрика качества информации пострадала в каждом случае:",
+            hintRef: "Стр. 6–7: Внимательно различайте избыточный Уровень детализации (все станции поезда до Бухары), нехватку Полноты (нет адреса) и несоответствие цели — Актуальность (аренда вместо покупки).",
+            pairs: pickMany(qualityCases, 4),
+            choices: [
+              "Точность",
+              "Актуальность (несоответствие цели)",
+              "Срок (устаревшая информация)",
+              "Уровень детализации (избыточность)",
+              "Полнота"
+            ]
+          };
+        }
+
+        // ==================== ЭТАП 5: Информационное кодирование: классификация и недостатки ====================
+        if (stageNum === 5) {
+          if (levelIndex === 0) {
+            const prosPool = [
+              { label: "Экономия памяти: закодированные данные занимают меньше места на диске", ok: true },
+              { label: "Скорость ввода и обработки: вводить и обрабатывать пару символов быстрее, чем длинные фразы", ok: true },
+              { label: "Упрощение валидации: легко проверить формат кода (например, до 3 букв в автокоде страны без цифр)", ok: true },
+              { label: "Компактное представление на небольших этикетках, метках и номерных знаках", ok: true },
+              { label: "Кодирование автоматически исправляет любые логические ошибки и делает данные на 100% достоверными", ok: false },
+              { label: "При кодировании никогда не теряется детализация описания объекта", ok: false }
+            ];
+            return {
+              type: "multi",
+              badge: "Уровень 1 • Знание (§ 1.04, стр. 9, Табл. 1.03)",
+              prompt: "Отметьте ВСЕ реальные ПРЕИМУЩЕСТВА кодирования данных согласно Таблице 1.03 учебника:",
+              hintRef: "Стр. 9, Таблица 1.03: Представление, Память, Скорость ввода, Обработка, Валидация, Конфиденциальность.",
+              options: shuffle(prosPool).map(function (x) {
+                return { label: x.label, correct: x.ok };
+              })
+            };
+          }
+
+          if (levelIndex === 1) {
+            const flights = [
+              { code: "TASISTHY271DEP03:40ARR06:55", from: "Ташкент (TAS)", to: "Стамбул (IST)", flight: "HY271", dep: "03:40", arr: "06:55" },
+              { code: "TASDXBHY333DEP08:15ARR11:05", from: "Ташкент (TAS)", to: "Дубай (DXB)", flight: "HY333", dep: "08:15", arr: "11:05" },
+              { code: "SAMISTTK371DEP05:20ARR08:45", from: "Самарканд (SAM)", to: "Стамбул (IST)", flight: "TK371", dep: "05:20", arr: "08:45" }
+            ];
+            const fl = pickOne(flights);
+            return {
+              type: "matching",
+              badge: "Уровень 2 • Понимание (§ 1.04, стр. 8)",
+              prompt: "Расшифруйте авиационную запись расписания «" + fl.code + "» и сопоставьте сегменты кода:",
+              hintRef: "Стр. 8: Первые 3 буквы — аэропорт вылета, следующие 3 — аэропорт прилёта, далее код авиакомпании и рейса, DEP — время вылета, ARR — время прибытия.",
+              pairs: shuffle([
+                { left: "Аэропорт отправления и назначения", right: fl.from + " → " + fl.to },
+                { left: "Код авиакомпании и номер рейса", right: fl.flight },
+                { left: "Сегмент DEP" + fl.dep, right: "Время вылета: " + fl.dep },
+                { left: "Сегмент ARR" + fl.arr, right: "Время прибытия: " + fl.arr }
+              ]),
+              choices: [
+                fl.from + " → " + fl.to,
+                fl.flight,
+                "Время вылета: " + fl.dep,
+                "Время прибытия: " + fl.arr
+              ]
+            };
+          }
+
+          // Уровень 3: Применение (Недостатки кодирования, Табл. 1.04)
+          const drawbacks = [
+            {
+              left: "Ноутбук кодируется как L, а телефон как M — при этом исчезает сведение о том, что у ноутбука сенсорный экран, а телефон является смартфоном",
+              right: "Потеря информации (огрубление)"
+            },
+            {
+              left: "Испания заняла букву E на автономерах, поэтому Египту пришлось дать код ET, Эквадору — EC, а Эфиопии — ETH",
+              right: "Ограниченные коды (нехватка букв)"
+            },
+            {
+              left: "При ручном вводе артикула оператор путает цифру 0 и букву O, цифру 2 и букву Z, цифру 1 и букву I",
+              right: "Сходство символов"
+            },
+            {
+              left: "Покупатель или кассир не помнит наизусть, какой стране принадлежит телефонный код +971 или автокод ET, и тратит время на поиск в справочнике",
+              right: "Трудность интерпретации и снижение эффективности"
+            }
+          ];
+          return {
+            type: "matching",
+            badge: "Уровень 3 • Применение (§ 1.04, стр. 9, Табл. 1.04)",
+            prompt: "Сопоставьте каждую практическую проблему с названием недостатка кодирования из Таблицы 1.04 учебника:",
+            hintRef: "Стр. 9, Таблица 1.04: Ограниченные коды, Интерпретация, Сходство, Эффективность, Потеря информации.",
+            pairs: shuffle(drawbacks),
+            choices: [
+              "Потеря информации (огрубление)",
+              "Ограниченные коды (нехватка букв)",
+              "Сходство символов",
+              "Трудность интерпретации и снижение эффективности"
+            ]
+          };
+        }
+
+        // ==================== ЭТАП 6: Кодирование текста и графики ====================
+        if (stageNum === 6) {
+          if (levelIndex === 0) {
+            const asciiLetters = [
+              { word: "CAB", codes: "67 65 66", wrong1: "65 66 67", wrong2: "99 97 98", wrong3: "66 65 67" },
+              { word: "BAD", codes: "66 65 68", wrong1: "65 66 68", wrong2: "98 97 100", wrong3: "67 65 68" },
+              { word: "ABC", codes: "65 66 67", wrong1: "64 65 66", wrong2: "97 98 99", wrong3: "67 66 65" }
+            ];
+            const item = pickOne(asciiLetters);
+            return {
+              type: "single",
+              badge: "Уровень 1 • Знание (§ 1.04, стр. 10, Табл. 1.05)",
+              prompt: "В стандартной таблице ASCII символ '@' имеет десятичный код 64, заглавная 'A' = 65, 'B' = 66, 'C' = 67, а строчная 'a' = 97. Какой последовательностью десятичных кодов ASCII кодируется слово «" + item.word + "»?",
+              hintRef: "Стр. 10, Таблица 1.05: Заглавные латинские буквы идут по порядку, начиная с A = 65, B = 66, C = 67, D = 68.",
+              options: shuffle([
+                { label: item.codes, correct: true },
+                { label: item.wrong1, correct: false },
+                { label: item.wrong2, correct: false },
+                { label: item.wrong3, correct: false }
+              ])
+            };
+          }
+
+          if (levelIndex === 1) {
+            return {
+              type: "matching",
+              badge: "Уровень 2 • Понимание (§ 1.04, стр. 10)",
+              prompt: "Сопоставьте битовую глубину цвета растрового изображения (Bitmap) и точку начала кодирования со значениями из учебника:",
+              hintRef: "Стр. 10: 1 бит = монохромный, 4 бита = 16 цветов, 8 бит = 256 цветов, 16 бит = 65 536 цветов, 24 бита = 16 млн цветов. Кодирование растра начинается в левом нижнем углу слева направо.",
+              pairs: shuffle([
+                { left: "Битовая глубина 4 бита на пиксель", right: "16 цветов" },
+                { left: "Битовая глубина 8 бит (1 байт) на пиксель", right: "256 цветов" },
+                { left: "Битовая глубина 24 бита на пиксель", right: "16 миллионов цветов" },
+                { left: "Точка старта кодирования растровой сетки (Рис. 1.10)", right: "Левый нижний угол, слева направо вверх по строкам" }
+              ]),
+              choices: [
+                "16 цветов",
+                "256 цветов",
+                "16 миллионов цветов",
+                "Левый нижний угол, слева направо вверх по строкам"
+              ]
+            };
+          }
+
+          // Уровень 3: Применение (Сжатие RLE и форматы графики, стр. 11–13)
+          return {
+            type: "matching",
+            badge: "Уровень 3 • Применение (§ 1.04, стр. 11, 13)",
+            prompt: "Подберите метод сжатия или графический формат под техническое требование:",
+            hintRef: "Стр. 11 и 13: RLE (кодирование длин серий) записывает количество подряд идущих одинаковых пикселей и цвет; SVG хранит векторные формы и масштабируется без потери качества; BMP хранит несжатые исходные данные; JPG использует сжатие с потерями.",
+            pairs: shuffle([
+              { left: "В строке идут 10 чёрных пикселей подряд: вместо 10 отдельных значений сохраняется пара «10 чёрный»", right: "RLE (кодирование длин серий)" },
+              { left: "Логотип компании нужно увеличивать и уменьшать до любых размеров без потери чёткости (хранит геометрические формы, а не пиксели)", right: "SVG (векторная графика)" },
+              { left: "Нужно сохранить абсолютно все исходные несжатые пиксели растра в максимальном качестве для редактирования", right: "BMP (несжатый растр)" },
+              { left: "Фотографию с глубиной 16 млн цветов нужно сильно уменьшить в размере для быстрой загрузки сайта за счёт удаления части данных", right: "JPG / JPEG (сжатие с потерями)" }
+            ]),
+            choices: [
+              "RLE (кодирование длин серий)",
+              "SVG (векторная графика)",
+              "BMP (несжатый растр)",
+              "JPG / JPEG (сжатие с потерями)"
+            ]
+          };
+        }
+
+        // ==================== ЭТАП 7: Параметры цифрового аудио и видео ====================
+        if (stageNum === 7) {
+          if (levelIndex === 0) {
+            return {
+              type: "single",
+              badge: "Уровень 1 • Знание (§ 1.04, стр. 11)",
+              prompt: "По какой формуле рассчитывается битовая скорость (битрейт) цифрового аудиофайла и какова стандартная частота звука на музыкальном компакт-диске (CD)?",
+              hintRef: "Стр. 11: Битовая скорость = частота звука × битовая глубина × количество каналов. Для CD используется частота 44,1 кГц (44 100 Гц) и глубина 16 бит (для телефонного звонка достаточно 8 кГц).",
+              options: shuffle([
+                { label: "Битрейт = Частота звука × Битовая глубина × Количество каналов (для CD: 44,1 кГц, 16 бит, 2 канала)", correct: true },
+                { label: "Битрейт = Частота звука ÷ Битовая глубина + Количество каналов (для CD: 8 кГц, 8 бит)", correct: false },
+                { label: "Битрейт = Ширина кадра × Высота кадра × 24 fps", correct: false },
+                { label: "Битрейт = Длительность в секундах × 8 бит", correct: false }
+              ])
+            };
+          }
+
+          if (levelIndex === 1) {
+            return {
+              type: "matching",
+              badge: "Уровень 2 • Понимание (§ 1.04, стр. 12)",
+              prompt: "Сопоставьте стандарты разрешения экрана и частоты кадров видео с их характеристиками из учебника:",
+              hintRef: "Стр. 12: SVGA (800×600) — для мобильных телефонов со слабым интернетом; XGA (1024×768) — для цифровых проекторов; HD — 1920×1080 (50/60 к/с); стандартное кино/видео — 24 к/с (fps).",
+              pairs: shuffle([
+                { left: "800 × 600 (SVGA)", right: "Для мобильных телефонов с небольшим экраном и слабым интернетом" },
+                { left: "1024 × 768 (XGA)", right: "Стандарт для работы с цифровыми проекторами" },
+                { left: "1920 × 1080 (HD) при 50 или 60 к/с", right: "Видео высокой чёткости (High Definition)" },
+                { left: "7680 × 4320 (8K)", right: "Сверхвысокая чёткость (Ultra HD 8K)" }
+              ]),
+              choices: [
+                "Для мобильных телефонов с небольшим экраном и слабым интернетом",
+                "Стандарт для работы с цифровыми проекторами",
+                "Видео высокой чёткости (High Definition)",
+                "Сверхвысокая чёткость (Ultra HD 8K)"
+              ]
+            };
+          }
+
+          // Уровень 3: Применение (Сжатие без потерь vs с потерями и проблема кодеков, стр. 12–13)
+          const avCases = [
+            {
+              q: "Несжатый CD-аудиофайл WAV (битрейт 1,4 Мбит/с) весит 37 МБ. Его сжали для радио/интернета до битрейта 128 кбит/с (3,36 МБ, уменьшение почти в 10 раз). Почему это невозможно сделать методом сжатия БЕЗ удаления данных (lossless)?",
+              ok: "Сжатие без удаления данных сохраняет 100% качества, но способно уменьшить размер аудиофайла максимум на 50%, а для 10-кратного сжатия приходится снижать битрейт с удалением части данных",
+              w1: "Сжатие без удаления данных вообще увеличивает размер файла в 2 раза",
+              w2: "Формат WAV является векторным форматом и не поддаётся архивации",
+              w3: "При битрейте 128 кбит/с качество звука становится выше, чем на компакт-диске"
+            },
+            {
+              q: "Пользователь скачал аудиофайлы в форматах AIFF и AAC, но его автомобильный CD-плеер воспроизводит только MP3 и выдаёт ошибку чтения. Какой фундаментальный недостаток кодирования данных здесь проявился (стр. 13)?",
+              ok: "Обилие методов кодирования порождает множество форматов файлов: устройство или программа не может открыть файл, если не установлен нужный кодек или формат аппаратно не поддерживается",
+              w1: "Файлы AIFF и AAC зашифрованы шифром Цезаря и требуют закрытого ключа сервера",
+              w2: "При кодировании в AAC произошла ошибка контрольной цифры ISBN",
+              w3: "Текстовая таблица ASCII не поддерживает звуковые файлы"
+            }
+          ];
+          const av = pickOne(avCases);
+          return {
+            type: "single",
+            badge: "Уровень 3 • Применение (§ 1.04, стр. 12–13)",
+            prompt: av.q,
+            hintRef: "Стр. 12–13: Сжатие без потерь уменьшает размер только на ~50%, сжатие с потерями (MP3, MP4) снижает битрейт/разрешение сильнее, но ухудшает качество. Для чтения форматов нужны соответствующие кодеки.",
+            options: shuffle([
+              { label: av.ok, correct: true },
+              { label: av.w1, correct: false },
+              { label: av.w2, correct: false },
+              { label: av.w3, correct: false }
+            ])
+          };
+        }
+
+        // ==================== ЭТАП 8: Шифрование: Цезарь, симметричное и асимметричное ====================
+        if (stageNum === 8) {
+          if (levelIndex === 0) {
+            return {
+              type: "matching",
+              badge: "Уровень 1 • Знание (§ 1.04, стр. 13–14)",
+              prompt: "Сопоставьте исторические и современные криптографические системы с их описанием из учебника:",
+              hintRef: "Стр. 14: Enigma — немецкая шифровальная машина с шестерёнками; Colossus — первая ЭВМ британцев для взлома шифров Лоренца; DES — 56-битный стандарт 1970-х; AES — современный стандарт с ключом до 256 бит.",
+              pairs: shuffle([
+                { left: "Немецкая машина времён Второй мировой войны с 3–5 шестерёнками (159×10¹⁸ комбинаций)", right: "Enigma (Энигма)" },
+                { left: "Первое в мире электронное вычислительное устройство, созданное для взлома шифровальной машины Лоренца", right: "Colossus (Колосс)" },
+                { left: "Стандарт шифрования 1970-х годов с длиной ключа 56 бит, который со временем удалось взломать перебором", right: "DES (Data Encryption Standard)" },
+                { left: "Современный надёжный стандарт шифрования с длиной ключа до 256 бит", right: "AES (Advanced Encryption Standard)" }
+              ]),
+              choices: [
+                "Enigma (Энигма)",
+                "Colossus (Колосс)",
+                "DES (Data Encryption Standard)",
+                "AES (Advanced Encryption Standard)"
+              ]
+            };
+          }
+
+          if (levelIndex === 1) {
+            const caesarPool = [
+              { plain: "SALOM", cipher: "VDORP", shift: 3, hint: "Пример со стр. 13 учебника: V→S, D→A, O→L, R→O, P→M" },
+              { plain: "KITOB", cipher: "NLWRE", shift: 3, hint: "Сдвиньте каждую букву NLWRE на 3 позиции назад по алфавиту: N→K, L→I, W→T, R→O, E→B" },
+              { plain: "MODEM", cipher: "PRGHP", shift: 3, hint: "Сдвиньте каждую букву PRGHP на 3 позиции назад: P→M, R→O, G→D, H→E, P→M" },
+              { plain: "LOGIN", cipher: "ORJLQ", shift: 3, hint: "Сдвиньте каждую букву ORJLQ на 3 позиции назад: O→L, R→O, J→G, L→I, Q→N" }
+            ];
+            const item = pickOne(caesarPool);
+            return {
+              type: "input",
+              badge: "Уровень 2 • Понимание (§ 1.04, стр. 13, Шифр Цезаря)",
+              prompt: "Слово было зашифровано шифром Цезаря со сдвигом алфавита +3 (A→D, B→E, C→F...). Получилась криптограмма: «" + item.cipher + "». Расшифруйте и введите исходное слово из 5 латинских букв:",
+              helperAlphabet: "Алфавит: A B C D E F G H I J K L M N O P Q R S T U V W X Y Z",
+              placeholder: "Введите расшифрованное слово (например, SALOM)",
+              expectedAnswer: item.plain,
+              hintRef: "Стр. 13: При расшифровке со сдвигом +3 нужно сдвигать каждую букву криптограммы на 3 позиции влево (назад) по алфавиту."
+            };
+          }
+
+          // Уровень 3: Применение (Асимметричное шифрование «Тахир и Хилола» + Цифровой сертификат, стр. 14–15)
+          return {
+            type: "matching",
+            badge: "Уровень 3 • Применение (§ 1.04, стр. 14–15, Рис. 1.16)",
+            prompt: "Тахир отправляет зашифрованное сообщение Хилоле с помощью АСИММЕТРИЧНОГО шифрования (Рис. 1.16). Укажите, какой ключ и инструмент используется на каждом шаге:",
+            hintRef: "Стр. 14–15: Отправитель (Тахир) шифрует письмо ОТКРЫТЫМ ключом получателя (Хилолы). Получатель (Хилола) расшифровывает письмо своим ЗАКРЫТЫМ ключом. Открытый ключ передаётся внутри Цифрового сертификата.",
+            pairs: shuffle([
+              { left: "Чем Тахир (отправитель) шифрует исходное сообщение для Хилолы?", right: "Открытым ключом Хилолы (получателя)" },
+              { left: "Чем Хилола (получатель) расшифровывает полученный шифротекст 6EB69570...?", right: "Закрытым ключом Хилолы (получателя)" },
+              { left: "Откуда компьютер отправителя получает открытый ключ и подтверждение личности получателя?", right: "Из цифрового сертификата" },
+              { left: "Какова скорость работы асимметричного шифрования по сравнению с симметричным?", right: "Медленнее, так как требует гораздо больше вычислений" }
+            ]),
+            choices: [
+              "Открытым ключом Хилолы (получателя)",
+              "Закрытым ключом Хилолы (получателя)",
+              "Из цифрового сертификата",
+              "Медленнее, так как требует гораздо больше вычислений"
+            ]
+          };
+        }
+
+        // ==================== ЭТАП 9: Защита трафика и носителей (HTTPS, SSL/TLS, Wi-Fi, Диски) ====================
+        if (stageNum === 9) {
+          if (levelIndex === 0) {
+            return {
+              type: "multi",
+              badge: "Уровень 1 • Знание (§ 1.04, стр. 14–15)",
+              prompt: "Отметьте РОВНО 5 элементов, которые обязательно входят в стандартный ЦИФРОВОЙ СЕРТИФИКАТ согласно учебнику (стр. 14):",
+              hintRef: "Стр. 14: Цифровой сертификат включает: 1) название организации, 2) организацию, выдавшую сертификат, 3) email пользователя, 4) страну пользователя, 5) открытый ключ пользователя. Закрытый ключ никогда в сертификат не включается!",
+              options: shuffle([
+                { label: "Открытый ключ пользователя (или сервера)", correct: true },
+                { label: "Название организации", correct: true },
+                { label: "Организация, выдавшая сертификат (центр сертификации)", correct: true },
+                { label: "Адрес электронной почты пользователя и страна", correct: true },
+                { label: "Уникальная идентификация пользователя или веб-сервера", correct: true },
+                { label: "Секретный ЗАКРЫТЫЙ ключ владельца сертификата", correct: false },
+                { label: "PIN-код и CVV-код банковской карты клиента", correct: false }
+              ])
+            };
+          }
+
+          if (levelIndex === 1) {
+            return {
+              type: "matching",
+              badge: "Уровень 2 • Понимание (§ 1.04, стр. 15–16, Рис. 1.18–1.20)",
+              prompt: "Восстановите хронологию работы протокола HTTPS (SSL/TLS) при подключении браузера к сайту онлайн-банка:",
+              hintRef: "Стр. 15–16: Сначала проверяется сертификат, затем открытым ключом сервера шифруется новый симметричный ключ, сервер расшифровывает его своим закрытым ключом, и далее обмен идёт быстро одним симметричным ключом.",
+              pairs: [
+                { left: "Шаг 1: Браузер обращается к https:// адресу", right: "Браузер запрашивает цифровой сертификат у веб-сервера и проверяет его подлинность" },
+                { left: "Шаг 2: Передача сеансового ключа от браузера к серверу", right: "Браузер шифрует новый симметричный ключ ОТКРЫТЫМ ключом веб-сервера" },
+                { left: "Шаг 3: Получение ключа на стороне веб-сервера", right: "Веб-сервер использует свой ЗАКРЫТЫЙ ключ для расшифровки нового симметричного ключа" },
+                { left: "Шаг 4: Передача данных кредитной карты в рамках сессии", right: "Браузер и сервер быстро обмениваются данными с помощью общего СИММЕТРИЧНОГО ключа" }
+              ],
+              choices: [
+                "Браузер запрашивает цифровой сертификат у веб-сервера и проверяет его подлинность",
+                "Браузер шифрует новый симметричный ключ ОТКРЫТЫМ ключом веб-сервера",
+                "Веб-сервер использует свой ЗАКРЫТЫЙ ключ для расшифровки нового симметричного ключа",
+                "Браузер и сервер быстро обмениваются данными с помощью общего СИММЕТРИЧНОГО ключа"
+              ]
+            };
+          }
+
+          // Уровень 3: Применение (Защита флешек, дисков, Wi-Fi и границы возможностей шифрования, стр. 15–16)
+          const secCases = [
+            {
+              q: "Бухгалтер зашифровал USB-флешку алгоритмом AES-256 (полное шифрование носителя), но выронил её в автобусе. От чего ЗАЩИТИТ и от чего НЕ СМОЖЕТ защитить шифрование в этой ситуации (стр. 15–16)?",
+              ok: "Шифрование НЕ предотвратит саму кражу, потерю флешки или удаление данных, но сделает информацию абсолютно нечитаемой для нашедшего без пароля/ключа",
+              w1: "Шифрование позволяет автоматически вернуть потерянную флешку владельцу по радиоканалу",
+              w2: "Шифрование гарантирует, что флешку невозможно отформатировать или сломать физически",
+              w3: "При шифровании диска шифруются только имена папок, а сами файлы остаются открытыми"
+            },
+            {
+              q: "Какие ДВЕ главные функции одновременно выполняет шифрование (ключ/пароль) в домашней или офисной точке доступа Wi-Fi согласно разделу «Тема для обсуждения» на стр. 16?",
+              ok: "Во-первых, блокирует подключение к сети посторонних лиц без ключа; во-вторых, шифрует передаваемый радио-трафик, чтобы перехватчик в машине на улице не мог прочитать письма и пароли",
+              w1: "Увеличивает скорость интернета в 2 раза и сжимает видеофайлы в формат MP4",
+              w2: "Проверяет орфографию в отправляемых письмах и вычисляет контрольную цифру ISBN",
+              w3: "Заменяет протокол HTTPS на незащищённый протокол HTTP"
+            }
+          ];
+          const sc = pickOne(secCases);
+          return {
+            type: "single",
+            badge: "Уровень 3 • Применение (§ 1.04, стр. 15–16)",
+            prompt: sc.q,
+            hintRef: "Стр. 16 («Как шифрование защищает данные?» и «Тема для обсуждения»): Шифрование делает перехваченные данные неразборчивыми, но не спасает от самой кражи или потери носителя.",
+            options: shuffle([
+              { label: sc.ok, correct: true },
+              { label: sc.w1, correct: false },
+              { label: sc.w2, correct: false },
+              { label: sc.w3, correct: false }
+            ])
+          };
+        }
+
+        // ==================== ЭТАП 10: Валидация, контрольная цифра и верификация ====================
+        if (stageNum === 10) {
+          if (levelIndex === 0) {
+            const valTypes = [
+              { left: "Количество учеников в классе должно быть >= 5 и <= 28 (заданы и нижняя, и верхняя границы)", right: "Контроль диапазона (Range check)" },
+              { left: "ID учащегося обязан состоять ровно из 4 цифр, за которыми следуют 2 буквы: 3827BD", right: "Проверка формата / шаблона (Format check)" },
+              { left: "Если в поле обращения выбрано «Mr» (мистер), система не позволяет выбрать пол «Ж»", right: "Проверка на соответствие (Consistency check)" },
+              { left: "В поле оценки разрешено выбрать значение только из заданного списка: X, P, M или D", right: "Уточнение параметров поиска (Lookup check)" },
+              { left: "Пароль должен содержать не менее 6 символов (или код товара от 4 до 6 символов)", right: "Проверка длины (Length check)" },
+              { left: "Поле электронной почты в форме не может быть оставлено пустым при отправке", right: "Проверка наличия (Presence check)" }
+            ];
+            return {
+              type: "matching",
+              badge: "Уровень 1 • Знание (§ 1.05, стр. 17–19)",
+              prompt: "Сопоставьте каждое правило проверки вводимых данных с точным названием метода ВАЛИДАЦИИ из учебника:",
+              hintRef: "Стр. 17–19: Проверка наличия, Контроль диапазона/лимита, Проверка типа, Проверка длины, Проверка формата, Уточнение параметров поиска, Проверка на соответствие.",
+              pairs: pickMany(valTypes, 4),
+              choices: [
+                "Контроль диапазона (Range check)",
+                "Проверка формата / шаблона (Format check)",
+                "Проверка на соответствие (Consistency check)",
+                "Уточнение параметров поиска (Lookup check)",
+                "Проверка длины (Length check)",
+                "Проверка наличия (Presence check)"
+              ]
+            };
+          }
+
+          if (levelIndex === 1) {
+            return {
+              type: "matching",
+              badge: "Уровень 2 • Понимание (§ 1.05, стр. 18, 20–21)",
+              prompt: "Почему валидация и верификация НЕ гарантируют 100% правильность данных? Проанализируйте 4 классические ловушки из учебника:",
+              hintRef: "Стр. 18, 20–21: Валидация проверяет только соответствие правилам (разумность), а верификация — только совпадение с источником или при двойном вводе.",
+              pairs: shuffle([
+                { left: "В поле даты рождения ввели «28.12.2087» — проверка типа и формата даты пройдена успешно", right: "Данные нормальные (валидные), но фактически неверные" },
+                { left: "Пользователь дважды ввёл новый пароль со случайно включённым CAPS LOCK — оба поля совпали", right: "Верификация двойным вводом пройдена, но пароль введён неверно" },
+                { left: "В исходном бумажном бланке была опечатка «ABC» вместо «ABCD», и оператор точно перепечатал «ABC» и сверил глазами", right: "Визуальная верификация пройдена, так как ошибка была в самом первоисточнике" },
+                { left: "Проверка текста книги независимым редактором вручную на орфографию, грамматику и точность", right: "Корректировка (исправление ошибок вручную)" }
+              ]),
+              choices: [
+                "Данные нормальные (валидные), но фактически неверные",
+                "Верификация двойным вводом пройдена, но пароль введён неверно",
+                "Визуальная верификация пройдена, так как ошибка была в самом первоисточнике",
+                "Корректировка (исправление ошибок вручную)"
+              ]
+            };
+          }
+
+          // Уровень 3: Применение (Алгоритм контрольной цифры ISBN/UPC со стр. 19–20)
+          const isbnCases = [
+            {
+              code: "978-0-9573404-1-1",
+              lastDigit: 1,
+              sumStep4: 89,
+              mod10: 9,
+              calcCheck: 1,
+              isNormal: true,
+              correctLabel: "Остаток 89 MOD 10 = 9; Контрольная цифра 10 − 9 = 1. Она совпадает с последней цифрой (1) → Данные НОРМАЛЬНЫЕ (принять)"
+            },
+            {
+              code: "978-0-9537404-1-1 (перепутаны цифры 7 и 3)",
+              lastDigit: 1,
+              sumStep4: 97,
+              mod10: 7,
+              calcCheck: 3,
+              isNormal: false,
+              correctLabel: "Остаток 97 MOD 10 = 7; Контрольная цифра 10 − 7 = 3. Она НЕ совпадает с введённой цифрой (1) → Данные АНОРМАЛЬНЫЕ (ошибка)"
+            },
+            {
+              code: "978-1-8619727-1-4",
+              lastDigit: 4,
+              sumStep4: 76,
+              mod10: 6,
+              calcCheck: 4,
+              isNormal: true,
+              correctLabel: "Остаток 76 MOD 10 = 6; Контрольная цифра 10 − 6 = 4. Она совпадает с последней цифрой (4) → Данные НОРМАЛЬНЫЕ (принять)"
+            },
+            {
+              code: "978-1-8619727-1-2",
+              lastDigit: 2,
+              sumStep4: 84,
+              mod10: 4,
+              calcCheck: 6,
+              isNormal: false,
+              correctLabel: "Остаток 84 MOD 10 = 4; Контрольная цифра 10 − 4 = 6. Она НЕ совпадает с введённой цифрой (2) → Данные АНОРМАЛЬНЫЕ (ошибка)"
+            }
+          ];
+          const ic = pickOne(isbnCases);
+          return {
+            type: "single",
+            badge: "Уровень 3 • Применение (§ 1.05, стр. 19–20, Контрольная цифра ISBN)",
+            prompt: "Проверяется 13-значный код ISBN «" + ic.code + "», где последняя цифра («" + ic.lastDigit + "») — контрольная. После выполнения шагов 1–4 алгоритма (сумма чётных × 3 + сумма нечётных) получилось число " + ic.sumStep4 + ". Выполните шаги 6 и 7 алгоритма (остаток от деления на 10 и вычитание из 10) и вынесите вердикт:",
+            hintRef: "Стр. 19–20: Шаг 6 — вычислить остаток от деления суммы на 10 (SUM MOD 10). Шаг 7 — вычесть этот остаток из 10. Если результат равен последней цифре ISBN — данные нормальные, иначе — анормальные.",
+            options: shuffle([
+              { label: ic.correctLabel, correct: true },
+              {
+                label: "Остаток " + ic.sumStep4 + " MOD 10 = " + ic.mod10 + "; Контрольная цифра 10 − " + ic.mod10 + " = " + ic.calcCheck + " → " + (ic.isNormal ? "Данные АНОРМАЛЬНЫЕ (отклонить)" : "Данные НОРМАЛЬНЫЕ (принять)"),
+                correct: false
+              },
+              {
+                label: "Нужно разделить " + ic.sumStep4 + " на 3 и прибавить 10 → Данные всегда нормальные",
+                correct: false
+              },
+              {
+                label: "Контрольная цифра проверяет только наличие символов в поле (Presence check) и не способна заметить перестановку соседних цифр",
+                correct: false
+              }
+            ])
+          };
+        }
+
+        return generateTaskForStageAndLevel(0, 0);
+      }
+
+      // Расширенный банк уникальных бонусных вопросов главы (с уникальными id для защиты от повторов)
+      const BONUS_POOL = [
+        {
+          id: "b1",
+          q: "Какое расширение имеет несжатый аудиофайл, упоминаемый в учебнике на стр. 12?",
+          a: "WAV (Waveform Audio File Format)",
+          w: ["MP3", "JPG", "SVG"],
+          ref: "Стр. 12"
+        },
+        {
+          id: "b2",
+          q: "Сколько всего символов содержит стандартная 8-битная таблица ASCII (от 0 до 255)?",
+          a: "256 символов",
+          w: ["128 символов", "65 536 символов", "16 символов"],
+          ref: "Стр. 10"
+        },
+        {
+          id: "b3",
+          q: "Какой протокол пришёл на смену SSL, хотя оба они по привычке часто называются SSL?",
+          a: "TLS (Transport Layer Security)",
+          w: ["HTTP", "FTP", "ASCII"],
+          ref: "Стр. 15"
+        },
+        {
+          id: "b4",
+          q: "Как в учебнике расшифровывается код 'AIPP HSRI', зашифрованный шифром Цезаря со сдвигом +4 (вопрос 14 на стр. 16)?",
+          a: "WELL DONE",
+          w: ["GOOD WORK", "DATA BASE", "SAFE CODE"],
+          ref: "Стр. 16, вопрос 14"
+        },
+        {
+          id: "b5",
+          q: "Какое условие валидации используется, если задана ТОЛЬКО ОДНА граница (например, Возраст >= 18 без верхнего предела)?",
+          a: "Проверка лимита / предела (Limit check)",
+          w: ["Проверка формата", "Уточнение параметров поиска", "Двойной ввод"],
+          ref: "Стр. 17"
+        },
+        {
+          id: "b6",
+          q: "Сколько байт занимает 1 секунда стерео-аудио CD-качества (44 100 Гц × 16 бит × 2 канала = 1 411 200 бит/с)?",
+          a: "176 400 байт (1 411 200 ÷ 8)",
+          w: ["44 100 байт", "1 411 200 байт", "16 000 байт"],
+          ref: "Стр. 11"
+        },
+        {
+          id: "b7",
+          q: "Какой международный телефонный и автомобильный код принадлежит Узбекистану согласно стр. 8?",
+          a: "Телефонный код +998, автомобильный код UZ",
+          w: ["Телефонный код +971, автокод UAE", "Телефонный код +44, автокод GB", "Телефонный код +49, автокод D"],
+          ref: "Стр. 8"
+        },
+        {
+          id: "b8",
+          q: "Какой метод верификации заставляет пользователя вводить новый пароль два раза подряд?",
+          a: "Двойной ввод данных (Double entry)",
+          w: ["Визуальная проверка", "Контрольная цифра", "Проверка наличия"],
+          ref: "Стр. 20"
+        },
+        {
+          id: "b9",
+          q: "Какова стандартная частота дискретизации звука для обычного телефонного голосового звонка согласно стр. 11?",
+          a: "8 кГц (8000 Гц)",
+          w: ["44,1 кГц", "192 кГц", "60 Гц"],
+          ref: "Стр. 11"
+        },
+        {
+          id: "b10",
+          q: "Что означает результат 10 при вычислении контрольной цифры ISBN на шаге 7 (когда остаток от деления на 10 равен 0)?",
+          a: "Контрольная цифра принимается равной 0",
+          w: ["Код считается ошибочным", "В конец ставится буква X", "Контрольная цифра равна 9"],
+          ref: "Стр. 19"
+        },
+        {
+          id: "b11",
+          q: "Сколько различных цветов позволяет закодировать глубина цвета 16 бит (High Color) согласно стр. 10?",
+          a: "65 536 цветов",
+          w: ["256 цветов", "16 миллионов цветов", "16 цветов"],
+          ref: "Стр. 10"
+        },
+        {
+          id: "b12",
+          q: "Какой графический формат в таблице на стр. 13 описан как открытый стандарт векторной графики на базе XML для веб-сайтов?",
+          a: "SVG (Scalable Vector Graphics)",
+          w: ["BMP", "PNG", "TIFF"],
+          ref: "Стр. 13"
+        }
+      ];
+
+      function generateBonusTask(stageIndex) {
+        const unsolvedPool = BONUS_POOL.filter(function (item) {
+          return appState.solvedBonusKeys.indexOf(item.id) === -1;
+        });
+
+        const stageBonusKey = "stage_bonus_" + stageIndex + "_ extra";
+        if (appState.solvedBonusKeys.indexOf(stageBonusKey) === -1) {
+          const randomLvl = Math.floor(Math.random() * 3);
+          const task = generateTaskForStageAndLevel(stageIndex, randomLvl);
+          task.badge = "⚡ БОНУС-ТРЕНАЖЁР (+1 бонусный балл)";
+          task.bonusKey = stageBonusKey;
+          return task;
+        }
+
+        if (unsolvedPool.length > 0) {
+          const b = pickOne(unsolvedPool);
+          return {
+            type: "single",
+            bonusKey: b.id,
+            badge: "⚡ БОНУС-БЛИЦ ПО ГЛАВЕ 1 (" + b.ref + ")",
+            prompt: b.q,
+            hintRef: b.ref + " учебника.",
+            options: shuffle(
+              [{ label: b.a, correct: true }].concat(
+                b.w.map(function (item) {
+                  return { label: item, correct: false };
+                })
+              )
+            )
+          };
+        }
+
+        return {
+          type: "exhausted",
+          badge: "🏆 БОНУС-ТРЕНАЖЁР ЗАВЕРШЁН",
+          prompt: "Вы блестяще решили все доступные бонусные задания! Ожидайте автоматического перехода к следующему этапу."
+        };
+      }
+
+      /***********************************************************************
+       * 4. УПРАВЛЕНИЕ ВРЕМЕНЕМ, РАСПИСАНИЕМ И ОДНОКРАТНОЙ ПАУЗОЙ
+       *    Исправление №2: При запуске приложения мы ВСЕГДА начинаем с экрана
+       *    приветствия и ожидания БЛИЖАЙШЕГО будущего урока (прошедшие по
+       *    времени слоты не открываются задним числом).
+       ***********************************************************************/
+      const APP_LAUNCH_MS = Date.now();
+
+      let timeMode = "AUTO"; // "AUTO", "FORCE_LESSON", "FORCE_WAITING", "FORCE_FINAL"
+      let forcedStartTimestampMs = null;
+      let lockedAutoSlot = null;
+
+      function findNearestUpcomingSlot(referenceDate) {
+        const now = referenceDate || new Date();
+        let nearestSlot = null;
+        let nearestDiffSec = null;
+
+        for (let i = 0; i < SCHEDULE_SLOTS.length; i++) {
+          const slot = SCHEDULE_SLOTS[i];
+          const candidate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), slot.hour, slot.minute, 0, 0);
+          const diffSec = Math.floor((candidate.getTime() - now.getTime()) / 1000);
+          if (diffSec > 0 && (nearestDiffSec === null || diffSec < nearestDiffSec)) {
+            nearestDiffSec = diffSec;
+            nearestSlot = {
+              hour: slot.hour,
+              minute: slot.minute,
+              label: slot.label,
+              mode: slot.mode,
+              durationMin: slot.durationMin,
+              requiredLevels: slot.requiredLevels,
+              targetStartMs: candidate.getTime(),
+              isTomorrow: false
+            };
+          }
+        }
+
+        if (!nearestSlot) {
+          const first = SCHEDULE_SLOTS[0];
+          const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, first.hour, first.minute, 0, 0);
+          nearestDiffSec = Math.floor((tomorrow.getTime() - now.getTime()) / 1000);
+          nearestSlot = {
+            hour: first.hour,
+            minute: first.minute,
+            label: first.label,
+            mode: first.mode,
+            durationMin: first.durationMin,
+            requiredLevels: first.requiredLevels,
+            targetStartMs: tomorrow.getTime(),
+            isTomorrow: true
+          };
+        }
+
+        return { slot: nearestSlot, secondsUntilStart: nearestDiffSec };
+      }
+
+      // Фиксируем ближайший будущий слот на момент запуска приложения,
+      // чтобы приложение всегда стартовало с экрана приветствия и ожидания ближайшего урока.
+      let targetUpcomingSlot = findNearestUpcomingSlot(new Date(APP_LAUNCH_MS)).slot;
+
+      let activeStageIndex = -1;
+      let currentTaskData = null;
+      let selectedSingleIndex = null;
+      let selectedMultiIndices = {};
+      let cooldownTimerId = null;
+      let cooldownRemainingSec = 0;
+      let lastErrorHintText = "";
+
+      // Анти-клик блокировка для бонусных заданий
+      let bonusLockTimerId = null;
+      let bonusLockRemainingSec = 0;
+      let isEvaluatingAnswer = false;
+
+      // Расчёт текущего смещения из-за однократной паузы (до 5 минут)
+      function syncPauseAndGetOffsetMs(nowMs) {
+        if (appState.isPaused && appState.pauseStartedAtMs) {
+          const elapsedPauseMs = Math.max(0, nowMs - appState.pauseStartedAtMs);
+          const maxPauseMs = LESSON_CONFIG.maxPauseDurationSec * 1000;
+          if (elapsedPauseMs >= maxPauseMs) {
+            // Автоматическое снятие с паузы по истечении 5 минут
+            appState.totalPausedMs = (Number(appState.totalPausedMs) || 0) + maxPauseMs;
+            appState.isPaused = false;
+            appState.pauseStartedAtMs = null;
+            saveState();
+            renderWorkspace();
+            return appState.totalPausedMs;
+          }
+          return (Number(appState.totalPausedMs) || 0) + elapsedPauseMs;
+        }
+        return Number(appState.totalPausedMs) || 0;
+      }
+
+      function getRemainingPauseSec(nowMs) {
+        if (!appState.isPaused || !appState.pauseStartedAtMs) return 0;
+        const elapsedPauseSec = Math.floor((nowMs - appState
